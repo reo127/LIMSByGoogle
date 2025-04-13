@@ -10,6 +10,15 @@ import { cn } from "@/lib/utils";
 import { CalendarIcon, UserPlus } from 'lucide-react';
 import { format } from 'date-fns';
 import AddPatientDialog from './AddPatientDialog';
+import {
+  Table,
+  TableBody,
+  TableCaption,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table"
 
 const PatientDashboard = () => {
   const [searchName, setSearchName] = useState('');
@@ -18,6 +27,31 @@ const PatientDashboard = () => {
   const [fromDate, setFromDate] = useState<Date | undefined>(new Date());
   const [toDate, setToDate] = useState<Date | undefined>(new Date());
   const [open, setOpen] = useState(false);
+
+  // Dummy patient data
+  const [patientData, setPatientData] = useState([
+    { id: '1', name: 'John Doe', status: 'approved', date: '2024-01-15' },
+    { id: '2', name: 'Jane Smith', status: 'pending', date: '2024-02-20' },
+    { id: '3', name: 'Alice Johnson', status: 'rejected', date: '2024-03-10' },
+    { id: '4', name: 'Bob Williams', status: 'approved', date: '2024-04-05' },
+    { id: '5', name: 'Charlie Brown', status: 'pending', date: '2024-05-12' },
+    { id: '6', name: 'Diana Miller', status: 'rejected', date: '2024-06-01' },
+    { id: '7', name: 'Ethan Davis', status: 'approved', date: '2024-07-18' },
+    { id: '8', name: 'Fiona Wilson', status: 'pending', date: '2024-08-25' },
+    { id: '9', name: 'George Garcia', status: 'rejected', date: '2024-09-30' },
+    { id: '10', name: 'Hannah Rodriguez', status: 'approved', date: '2024-10-08' },
+    { id: '11', name: 'Ivy Martinez', status: 'pending', date: '2024-11-14' },
+    { id: '12', name: 'Jack Anderson', status: 'rejected', date: '2024-12-22' },
+    { id: '13', name: 'Karen Thompson', status: 'approved', date: '2025-01-03' },
+    { id: '14', name: 'Liam White', status: 'pending', date: '2025-02-11' },
+    { id: '15', name: 'Mia Harris', status: 'rejected', date: '2025-03-19' },
+  ]);
+
+  // Filter patient data based on status
+  const allPatients = patientData;
+  const approvedPatients = patientData.filter(patient => patient.status === 'approved');
+  const rejectedPatients = patientData.filter(patient => patient.status === 'rejected');
+  const pendingPatients = patientData.filter(patient => patient.status === 'pending');
 
   return (
     <div className="container mx-auto py-10">
@@ -80,7 +114,7 @@ const PatientDashboard = () => {
         </Popover>
       </div>
 
-      <Tabs defaultvalue="all" className="w-full">
+      <Tabs defaultValue="all" className="w-full">
         <TabsList>
           <TabsTrigger value="all">All</TabsTrigger>
           <TabsTrigger value="approved">Approved</TabsTrigger>
@@ -88,16 +122,96 @@ const PatientDashboard = () => {
           <TabsTrigger value="pending">Pending</TabsTrigger>
         </TabsList>
         <TabsContent value="all">
-          <p>All Patient Records Content</p>
+          <Table>
+            <TableCaption>A list of all patient records.</TableCaption>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="w-[100px]">ID</TableHead>
+                <TableHead>Name</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead>Date</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {allPatients.map((patient) => (
+                <TableRow key={patient.id}>
+                  <TableCell className="font-medium">{patient.id}</TableCell>
+                  <TableCell>{patient.name}</TableCell>
+                  <TableCell>{patient.status}</TableCell>
+                  <TableCell>{patient.date}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
         </TabsContent>
         <TabsContent value="approved">
-          <p>Approved Patient Records Content</p>
+        <Table>
+            <TableCaption>A list of approved patient records.</TableCaption>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="w-[100px]">ID</TableHead>
+                <TableHead>Name</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead>Date</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {approvedPatients.map((patient) => (
+                <TableRow key={patient.id}>
+                  <TableCell className="font-medium">{patient.id}</TableCell>
+                  <TableCell>{patient.name}</TableCell>
+                  <TableCell>{patient.status}</TableCell>
+                  <TableCell>{patient.date}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
         </TabsContent>
         <TabsContent value="rejected">
-          <p>Rejected Patient Records Content</p>
+        <Table>
+            <TableCaption>A list of rejected patient records.</TableCaption>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="w-[100px]">ID</TableHead>
+                <TableHead>Name</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead>Date</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {rejectedPatients.map((patient) => (
+                <TableRow key={patient.id}>
+                  <TableCell className="font-medium">{patient.id}</TableCell>
+                  <TableCell>{patient.name}</TableCell>
+                  <TableCell>{patient.status}</TableCell>
+                  <TableCell>{patient.date}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
         </TabsContent>
         <TabsContent value="pending">
-          <p>Pending Patient Records Content</p>
+        <Table>
+            <TableCaption>A list of pending patient records.</TableCaption>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="w-[100px]">ID</TableHead>
+                <TableHead>Name</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead>Date</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {pendingPatients.map((patient) => (
+                <TableRow key={patient.id}>
+                  <TableCell className="font-medium">{patient.id}</TableCell>
+                  <TableCell>{patient.name}</TableCell>
+                  <TableCell>{patient.status}</TableCell>
+                  <TableCell>{patient.date}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
         </TabsContent>
       </Tabs>
 
