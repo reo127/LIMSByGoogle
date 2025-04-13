@@ -19,12 +19,16 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
+import { Icons } from './icons';
+
+const itemsPerPage = 5;
 
 const PatientDashboard = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [fromDate, setFromDate] = useState<Date | undefined>(new Date());
   const [toDate, setToDate] = useState<Date | undefined>(new Date());
   const [open, setOpen] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
 
   // Dummy patient data
   const [patientData, setPatientData] = useState([
@@ -59,6 +63,54 @@ const PatientDashboard = () => {
   const approvedPatients = filteredPatients.filter(patient => patient.status === 'approved');
   const rejectedPatients = filteredPatients.filter(patient => patient.status === 'rejected');
   const pendingPatients = filteredPatients.filter(patient => patient.status === 'pending');
+
+  const getCurrentPageData = (patients: any[]) => {
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    return patients.slice(startIndex, endIndex);
+  };
+
+  const allCurrentPageData = getCurrentPageData(allPatients);
+  const approvedCurrentPageData = getCurrentPageData(approvedPatients);
+  const rejectedCurrentPageData = getCurrentPageData(rejectedPatients);
+  const pendingCurrentPageData = getCurrentPageData(pendingPatients);
+
+  const totalPagesAll = Math.ceil(allPatients.length / itemsPerPage);
+  const totalPagesApproved = Math.ceil(approvedPatients.length / itemsPerPage);
+  const totalPagesRejected = Math.ceil(rejectedPatients.length / itemsPerPage);
+  const totalPagesPending = Math.ceil(pendingPatients.length / itemsPerPage);
+
+  const onPageChange = (tab: string, page: number) => {
+    setCurrentPage(page);
+  };
+
+
+  const renderPagination = (totalPages: number, tab: string) => {
+    if (totalPages <= 1) return null;
+
+    return (
+      <div className="flex justify-center mt-4 space-x-2">
+        <Button
+          onClick={() => onPageChange(tab, currentPage - 1)}
+          disabled={currentPage === 1}
+          variant="outline"
+          size="icon"
+        >
+          <Icons.chevronLeft className="h-4 w-4" />
+        </Button>
+        <span>{currentPage} of {totalPages}</span>
+        <Button
+          onClick={() => onPageChange(tab, currentPage + 1)}
+          disabled={currentPage === totalPages}
+          variant="outline"
+          size="icon"
+        >
+          <Icons.chevronRight className="h-4 w-4" />
+        </Button>
+      </div>
+    );
+  };
+
 
   return (
     <div className="container mx-auto py-10">
@@ -117,10 +169,10 @@ const PatientDashboard = () => {
 
       <Tabs defaultValue="all" className="w-full">
         <TabsList>
-          <TabsTrigger value="all">All</TabsTrigger>
-          <TabsTrigger value="approved">Approved</TabsTrigger>
-          <TabsTrigger value="rejected">Rejected</TabsTrigger>
-          <TabsTrigger value="pending">Pending</TabsTrigger>
+          <TabsTrigger value="all" onClick={() => setCurrentPage(1)}>All</TabsTrigger>
+          <TabsTrigger value="approved" onClick={() => setCurrentPage(1)}>Approved</TabsTrigger>
+          <TabsTrigger value="rejected" onClick={() => setCurrentPage(1)}>Rejected</TabsTrigger>
+          <TabsTrigger value="pending" onClick={() => setCurrentPage(1)}>Pending</TabsTrigger>
         </TabsList>
         <TabsContent value="all">
           <Table>
@@ -134,7 +186,7 @@ const PatientDashboard = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {allPatients.map((patient) => (
+              {allCurrentPageData.map((patient) => (
                 <TableRow key={patient.id}>
                   <TableCell className="font-medium">{patient.id}</TableCell>
                   <TableCell>{patient.name}</TableCell>
@@ -144,6 +196,7 @@ const PatientDashboard = () => {
               ))}
             </TableBody>
           </Table>
+          {renderPagination(totalPagesAll, "all")}
         </TabsContent>
         <TabsContent value="approved">
         <Table>
@@ -157,7 +210,7 @@ const PatientDashboard = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {approvedPatients.map((patient) => (
+              {approvedCurrentPageData.map((patient) => (
                 <TableRow key={patient.id}>
                   <TableCell className="font-medium">{patient.id}</TableCell>
                   <TableCell>{patient.name}</TableCell>
@@ -167,6 +220,7 @@ const PatientDashboard = () => {
               ))}
             </TableBody>
           </Table>
+          {renderPagination(totalPagesApproved, "approved")}
         </TabsContent>
         <TabsContent value="rejected">
         <Table>
@@ -180,7 +234,7 @@ const PatientDashboard = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {rejectedPatients.map((patient) => (
+              {rejectedCurrentPageData.map((patient) => (
                 <TableRow key={patient.id}>
                   <TableCell className="font-medium">{patient.id}</TableCell>
                   <TableCell>{patient.name}</TableCell>
@@ -190,6 +244,7 @@ const PatientDashboard = () => {
               ))}
             </TableBody>
           </Table>
+          {renderPagination(totalPagesRejected, "rejected")}
         </TabsContent>
         <TabsContent value="pending">
         <Table>
@@ -203,7 +258,7 @@ const PatientDashboard = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {pendingPatients.map((patient) => (
+              {pendingCurrentPageData.map((patient) => (
                 <TableRow key={patient.id}>
                   <TableCell className="font-medium">{patient.id}</TableCell>
                   <TableCell>{patient.name}</TableCell>
@@ -213,6 +268,7 @@ const PatientDashboard = () => {
               ))}
             </TableBody>
           </Table>
+          {renderPagination(totalPagesPending, "pending")}
         </TabsContent>
       </Tabs>
 
