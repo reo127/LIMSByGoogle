@@ -21,9 +21,7 @@ import {
 } from "@/components/ui/table"
 
 const PatientDashboard = () => {
-  const [searchName, setSearchName] = useState('');
-  const [searchId, setSearchId] = useState('');
-  const [searchStatus, setSearchStatus] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
   const [fromDate, setFromDate] = useState<Date | undefined>(new Date());
   const [toDate, setToDate] = useState<Date | undefined>(new Date());
   const [open, setOpen] = useState(false);
@@ -47,11 +45,20 @@ const PatientDashboard = () => {
     { id: '15', name: 'Mia Harris', status: 'rejected', date: '2025-03-19' },
   ]);
 
-  // Filter patient data based on status
-  const allPatients = patientData;
-  const approvedPatients = patientData.filter(patient => patient.status === 'approved');
-  const rejectedPatients = patientData.filter(patient => patient.status === 'rejected');
-  const pendingPatients = patientData.filter(patient => patient.status === 'pending');
+  // Filter patient data based on search query and status
+  const filteredPatients = patientData.filter(patient => {
+    const searchStr = searchQuery.toLowerCase();
+    return (
+      patient.name.toLowerCase().includes(searchStr) ||
+      patient.id.toLowerCase().includes(searchStr) ||
+      patient.status.toLowerCase().includes(searchStr)
+    );
+  });
+
+  const allPatients = filteredPatients;
+  const approvedPatients = filteredPatients.filter(patient => patient.status === 'approved');
+  const rejectedPatients = filteredPatients.filter(patient => patient.status === 'rejected');
+  const pendingPatients = filteredPatients.filter(patient => patient.status === 'pending');
 
   return (
     <div className="container mx-auto py-10">
@@ -60,21 +67,9 @@ const PatientDashboard = () => {
       <div className="flex space-x-4 mb-4">
         <Input
           type="text"
-          placeholder="Search by Name"
-          value={searchName}
-          onChange={(e) => setSearchName(e.target.value)}
-        />
-        <Input
-          type="text"
-          placeholder="Search by ID"
-          value={searchId}
-          onChange={(e) => setSearchId(e.target.value)}
-        />
-        <Input
-          type="text"
-          placeholder="Search by Status"
-          value={searchStatus}
-          onChange={(e) => setSearchStatus(e.target.value)}
+          placeholder="Search by Name, ID, or Status"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
         />
 
         <Popover>
