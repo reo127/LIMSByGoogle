@@ -62,7 +62,13 @@ const PatientDashboard = () => {
 
   return (
     <div className="container mx-auto py-10">
-      <h1 className="text-2xl font-bold mb-4">Patient Dashboard</h1>
+      <div className="flex justify-between items-center mb-4">
+        <h1 className="text-2xl font-bold">Patient Dashboard</h1>
+        <Button onClick={() => setOpen(true)}>
+          <UserPlus className="mr-2 h-4 w-4" />
+          Add Patient
+        </Button>
+      </div>
 
       <div className="flex space-x-4 mb-4">
         <Input
@@ -209,11 +215,6 @@ const PatientDashboard = () => {
           </Table>
         </TabsContent>
       </Tabs>
-
-      <Button onClick={() => setOpen(true)} className="mt-4">
-        <UserPlus className="mr-2 h-4 w-4" />
-        Add Patient
-      </Button>
 
       <AddPatientDialog open={open} setOpen={setOpen} />
     </div>
