@@ -7,16 +7,16 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-  CommandSeparator,
-  CommandShortcut,
-} from "@/components/ui/command"
+// import {
+//   Command,
+//   CommandEmpty,
+//   CommandGroup,
+//   CommandInput,
+//   CommandItem,
+//   CommandList,
+//   CommandSeparator,
+//   CommandShortcut,
+// } from "@/components/ui/command";
 
 const AddPatientDialog = ({ open, setOpen }: { open: boolean; setOpen: (open: boolean) => void }) => {
   const [step, setStep] = useState(1);
@@ -151,7 +151,22 @@ const AddPatientDialog = ({ open, setOpen }: { open: boolean; setOpen: (open: bo
 
             <div className="w-1/2 grid gap-4">
               <Label>Tests</Label>
-              <TestSelection tests={tests} onAddTest={handleAddTest} />
+              {/*<TestSelection tests={tests} onAddTest={handleAddTest} />*/}
+              <Select onValueChange={(value) => {
+                const test = tests.find(test => test.id === value);
+                if (test) {
+                  handleAddTest(test);
+                }
+              }}>
+                <SelectTrigger className="w-[180px]">
+                  <SelectValue placeholder="Select a test" />
+                </SelectTrigger>
+                <SelectContent>
+                  {tests.map(test => (
+                    <SelectItem key={test.id} value={test.id}>{test.name} - ${test.price}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
               <div>
                 <Label>Selected Tests</Label>
                 <ul>
@@ -229,31 +244,31 @@ const AddPatientDialog = ({ open, setOpen }: { open: boolean; setOpen: (open: bo
   );
 };
 
-const TestSelection = ({ tests, onAddTest }: { tests: any[], onAddTest: (test: any) => void }) => {
-  const [open, setOpen] = React.useState(false)
-  const [value, setValue] = React.useState("")
-
-  return (
-    <Command className="rounded-md border">
-      <CommandInput placeholder="Search tests..." value={value} onValueChange={setValue} />
-      <CommandList>
-        <CommandEmpty>No test found.</CommandEmpty>
-        <CommandGroup heading="Tests">
-          {tests.filter((test) => {
-            return test.name.toLowerCase().includes(value.toLowerCase());
-          }).map((test) => (
-            <CommandItem key={test.id} onSelect={() => {
-              onAddTest(test);
-              setValue("");
-            }}>
-              {test.name}
-              <CommandShortcut>${test.price}</CommandShortcut>
-            </CommandItem>
-          ))}
-        </CommandGroup>
-      </CommandList>
-    </Command>
-  )
-}
+// const TestSelection = ({ tests, onAddTest }: { tests: any[], onAddTest: (test: any) => void }) => {
+//   const [open, setOpen] = React.useState(false)
+//   const [value, setValue] = React.useState("")
+//
+//   return (
+//     <Command className="rounded-md border">
+//       <CommandInput placeholder="Search tests..." value={value} onValueChange={setValue} />
+//       <CommandList>
+//         <CommandEmpty>No test found.</CommandEmpty>
+//         <CommandGroup heading="Tests">
+//           {tests.filter((test) => {
+//             return test.name.toLowerCase().includes(value.toLowerCase());
+//           }).map((test) => (
+//             <CommandItem key={test.id} onSelect={() => {
+//               onAddTest(test);
+//               setValue("");
+//             }}>
+//               {test.name}
+//               <CommandShortcut>${test.price}</CommandShortcut>
+//             </CommandItem>
+//           ))}
+//         </CommandGroup>
+//       </CommandList>
+//     </Command>
+//   )
+// }
 
 export default AddPatientDialog;
