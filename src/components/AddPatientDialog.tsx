@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { useToast } from "@/hooks/use-toast";
 
 const AddPatientDialog = ({ open, setOpen }: { open: boolean; setOpen: (open: boolean) => void }) => {
   const [step, setStep] = useState(1);
@@ -27,6 +28,8 @@ const AddPatientDialog = ({ open, setOpen }: { open: boolean; setOpen: (open: bo
     paymentMode: '',
   });
 
+  const { toast } = useToast();
+
   // Dummy data
   const doctors = ['Dr. Smith', 'Dr. Jones', 'Dr. Williams', 'Dr. Brown'];
   const tests = [
@@ -43,8 +46,40 @@ const AddPatientDialog = ({ open, setOpen }: { open: boolean; setOpen: (open: bo
   ];
 
   const handleNext = () => {
+    if (step === 1) {
+      if (!patientDetails.name || !patientDetails.phoneNumber || !patientDetails.age || !patientDetails.gender || !patientDetails.recommendedBy) {
+        toast({
+          title: "Error",
+          description: "Please fill in all the patient details.",
+          variant: "destructive",
+        });
+        return;
+      }
+    }
+
+    if (step === 2) {
+      if (isNaN(Number(paymentDetails.discount)) || Number(paymentDetails.discount) < 0 || Number(paymentDetails.discount) > 100) {
+        toast({
+          title: "Error",
+          description: "Discount must be a number between 0 and 100.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      if (!/^\d{10}$/.test(patientDetails.phoneNumber)) {
+        toast({
+          title: "Error",
+          description: "Please enter a valid 10-digit phone number.",
+          variant: "destructive",
+        });
+        return;
+      }
+    }
+
     setStep(step + 1);
   };
+
 
   const handleBack = () => {
     setStep(step - 1);
@@ -83,6 +118,10 @@ const AddPatientDialog = ({ open, setOpen }: { open: boolean; setOpen: (open: bo
     console.log('Patient Details:', patientDetails);
     console.log('Selected Tests:', selectedTests);
     console.log('Payment Details:', paymentDetails);
+    toast({
+      title: "Success",
+      description: "Patient added successfully.",
+    });
     setOpen(false);
   };
 
