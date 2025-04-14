@@ -7,20 +7,43 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+  CommandSeparator,
+  CommandShortcut,
+} from "@/components/ui/command"
 
 const AddPatientDialog = ({ open, setOpen }: { open: boolean; setOpen: (open: boolean) => void }) => {
   const [step, setStep] = useState(1);
   const [patientDetails, setPatientDetails] = useState({
     name: '',
-    id: '',
-    testName: '',
-    price: '',
+    phoneNumber: '',
+    age: '',
+    gender: '',
+    recommendedBy: '',
   });
+
+  const [selectedTests, setSelectedTests] = useState<any[]>([]);
 
   const [paymentDetails, setPaymentDetails] = useState({
     advancePayment: '',
     discount: '',
   });
+
+  // Dummy data
+  const doctors = ['Dr. Smith', 'Dr. Jones', 'Dr. Williams', 'Dr. Brown'];
+  const tests = [
+    { id: '1', name: 'CBC', price: 50 },
+    { id: '2', name: 'Lipid Panel', price: 75 },
+    { id: '3', name: 'Comprehensive Metabolic Panel', price: 100 },
+    { id: '4', name: 'Vitamin D Test', price: 60 },
+    { id: '5', name: 'Iron Studies', price: 80 },
+  ];
 
   const handleNext = () => {
     setStep(step + 1);
@@ -30,7 +53,7 @@ const AddPatientDialog = ({ open, setOpen }: { open: boolean; setOpen: (open: bo
     setStep(step - 1);
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setPatientDetails(prevState => ({
       ...prevState,
@@ -46,8 +69,17 @@ const AddPatientDialog = ({ open, setOpen }: { open: boolean; setOpen: (open: bo
     }));
   };
 
+  const handleAddTest = (test: any) => {
+    setSelectedTests(prevState => [...prevState, test]);
+  };
+
+  const handleRemoveTest = (testId: string) => {
+    setSelectedTests(prevState => prevState.filter(test => test.id !== testId));
+  };
+
   const handleSubmit = () => {
     console.log('Patient Details:', patientDetails);
+    console.log('Selected Tests:', selectedTests);
     console.log('Payment Details:', paymentDetails);
     setOpen(false);
   };
@@ -58,40 +90,81 @@ const AddPatientDialog = ({ open, setOpen }: { open: boolean; setOpen: (open: bo
         <DialogHeader>
           <DialogTitle>Add New Patient - Step {step} of 3</DialogTitle>
           <DialogDescription>
-            {step === 1 && "Enter patient details and select a test."}
+            {step === 1 && "Enter patient details and select tests."}
             {step === 2 && "Enter payment details and discount options."}
             {step === 3 && "Verify details and confirm booking."}
           </DialogDescription>
         </DialogHeader>
 
         {step === 1 && (
-          <div className="grid gap-4 py-4">
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="name" className="text-right">
-                Name
-              </Label>
-              <Input type="text" id="name" name="name" value={patientDetails.name} onChange={handleChange} className="col-span-3" />
+          <div className="flex gap-4 py-4">
+            <div className="w-1/2 grid gap-4">
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="name" className="text-right">
+                  Name
+                </Label>
+                <Input type="text" id="name" name="name" value={patientDetails.name} onChange={handleInputChange} className="col-span-3" />
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="phoneNumber" className="text-right">
+                  Phone Number
+                </Label>
+                <Input type="text" id="phoneNumber" name="phoneNumber" value={patientDetails.phoneNumber} onChange={handleInputChange} className="col-span-3" />
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="age" className="text-right">
+                  Age
+                </Label>
+                <Input type="text" id="age" name="age" value={patientDetails.age} onChange={handleInputChange} className="col-span-3" />
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="gender" className="text-right">
+                  Gender
+                </Label>
+                <Select onValueChange={(value) => setPatientDetails(prevState => ({ ...prevState, gender: value }))}>
+                  <SelectTrigger className="col-span-3">
+                    <SelectValue placeholder="Select gender" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="male">Male</SelectItem>
+                    <SelectItem value="female">Female</SelectItem>
+                    <SelectItem value="other">Other</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="recommendedBy" className="text-right">
+                  Referred by Doctor
+                </Label>
+                <Select onValueChange={(value) => setPatientDetails(prevState => ({ ...prevState, recommendedBy: value }))}>
+                  <SelectTrigger className="col-span-3">
+                    <SelectValue placeholder="Select doctor" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {doctors.map(doctor => (
+                      <SelectItem key={doctor} value={doctor}>{doctor}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="id" className="text-right">
-                ID
-              </Label>
-              <Input type="text" id="id" name="id" value={patientDetails.id} onChange={handleChange} className="col-span-3" />
-            </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="testName" className="text-right">
-                Test Name
-              </Label>
-              <Select onValueChange={(value) => setPatientDetails(prevState => ({ ...prevState, testName: value }))}>
-                <SelectTrigger className="col-span-3">
-                  <SelectValue placeholder="Select a test" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="CBC">CBC - $50</SelectItem>
-                  <SelectItem value="Lipid Panel">Lipid Panel - $75</SelectItem>
-                  <SelectItem value="Comprehensive Metabolic Panel">Comprehensive Metabolic Panel - $100</SelectItem>
-                </SelectContent>
-              </Select>
+
+            <div className="w-1/2 grid gap-4">
+              <Label>Tests</Label>
+              <TestSelection tests={tests} onAddTest={handleAddTest} />
+              <div>
+                <Label>Selected Tests</Label>
+                <ul>
+                  {selectedTests.map(test => (
+                    <li key={test.id} className="flex items-center justify-between">
+                      {test.name} - ${test.price}
+                      <Button type="button" variant="ghost" size="sm" onClick={() => handleRemoveTest(test.id)}>
+                        Remove
+                      </Button>
+                    </li>
+                  ))}
+                </ul>
+              </div>
             </div>
           </div>
         )}
@@ -106,7 +179,7 @@ const AddPatientDialog = ({ open, setOpen }: { open: boolean; setOpen: (open: bo
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="discount" className="text-right">
-                Discount
+                Discount (%)
               </Label>
               <Input type="text" id="discount" name="discount" value={paymentDetails.discount} onChange={handlePaymentChange} className="col-span-3" />
             </div>
@@ -118,11 +191,19 @@ const AddPatientDialog = ({ open, setOpen }: { open: boolean; setOpen: (open: bo
             <p>Please confirm the following details:</p>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
               <div><strong>Patient Name:</strong> {patientDetails.name}</div>
-              <div><strong>Patient ID:</strong> {patientDetails.id}</div>
-              <div><strong>Test Name:</strong> {patientDetails.testName}</div>
-              <div><strong>Price:</strong> {patientDetails.price}</div>
+              <div><strong>Phone Number:</strong> {patientDetails.phoneNumber}</div>
+              <div><strong>Age:</strong> {patientDetails.age}</div>
+              <div><strong>Gender:</strong> {patientDetails.gender}</div>
+              <div><strong>Referred by:</strong> {patientDetails.recommendedBy}</div>
+              <div><strong>Selected Tests:</strong>
+                <ul>
+                  {selectedTests.map(test => (
+                    <li key={test.id}>{test.name}</li>
+                  ))}
+                </ul>
+              </div>
               <div><strong>Advance Payment:</strong> {paymentDetails.advancePayment}</div>
-              <div><strong>Discount:</strong> {paymentDetails.discount}</div>
+              <div><strong>Discount:</strong> {paymentDetails.discount}%</div>
             </div>
           </div>
         )}
@@ -147,5 +228,32 @@ const AddPatientDialog = ({ open, setOpen }: { open: boolean; setOpen: (open: bo
     </Dialog>
   );
 };
+
+const TestSelection = ({ tests, onAddTest }: { tests: any[], onAddTest: (test: any) => void }) => {
+  const [open, setOpen] = React.useState(false)
+  const [value, setValue] = React.useState("")
+
+  return (
+    <Command className="rounded-md border">
+      <CommandInput placeholder="Search tests..." value={value} onValueChange={setValue} />
+      <CommandList>
+        <CommandEmpty>No test found.</CommandEmpty>
+        <CommandGroup heading="Tests">
+          {tests.filter((test) => {
+            return test.name.toLowerCase().includes(value.toLowerCase());
+          }).map((test) => (
+            <CommandItem key={test.id} onSelect={() => {
+              onAddTest(test);
+              setValue("");
+            }}>
+              {test.name}
+              <CommandShortcut>${test.price}</CommandShortcut>
+            </CommandItem>
+          ))}
+        </CommandGroup>
+      </CommandList>
+    </Command>
+  )
+}
 
 export default AddPatientDialog;
