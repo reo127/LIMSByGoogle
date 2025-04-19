@@ -219,7 +219,7 @@ const Sidebar = React.forwardRef<
         className={cn(
           "group/sidebar peer hidden md:block text-sidebar-foreground",
           "transition-all duration-200 ease-linear",
-          state === "collapsed" && "w-[3rem] hover:w-[--sidebar-width]",
+          state === "collapsed" && "w-[3rem] ",
         )}
         data-state={state}
         data-collapsible={state === "collapsed" ? collapsible : ""}
@@ -237,7 +237,7 @@ const Sidebar = React.forwardRef<
             variant === "floating" || variant === "inset"
               ? "group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)_+_theme(spacing.4))]"
               : "group-data-[collapsible=icon]:w-[--sidebar-width-icon]",
-            state === "collapsed" ? "w-[3rem]" : "w-[--sidebar-width]"
+            state === "collapsed" ? "w-[3rem]" : ""
           )}
         />
         <div
