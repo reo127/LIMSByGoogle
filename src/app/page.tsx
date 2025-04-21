@@ -6,6 +6,8 @@ import { useSidebar } from '@/components/ui/sidebar';
 import { cn } from '@/lib/utils';
 import dynamic from 'next/dynamic';
 import { AppSidebar } from '@/components/AppSidebar';
+import useStore from './store/general';
+import { Tabs } from '@/enums/nabItems';
 
 const DynamicPatientDashboard = dynamic(() => import('@/components/PatientDashboard'), {
   suspense: true,
@@ -23,10 +25,19 @@ const DynamicPayments = dynamic(() => import('@/components/Payments'), {
   suspense: true,
   ssr: false,
 });
+const DynamicEditPatient = dynamic(() => import('@/components/EaditPatient'), {
+  suspense: true,
+  ssr: false,
+});
 
 export default function IndexPage() {
   const { state } = useSidebar();
-  const [activeTab, setActiveTab] = React.useState<'home' | 'patient-dashboard' | 'settings' | 'approve' | 'payments'>('home');
+  // const [activeTab, setActiveTab] = React.useState<'home' | 'patient-dashboard' | 'settings' | 'approve' | 'payments' | 'editpatient'>('home');
+  const activeTab = useStore((state) => state.activeTab);
+  const setActiveTab = useStore((state) => state.setActiveTab);
+
+
+  console.log("Active Tab:", activeTab);
 
   return (
     <div className="flex h-screen">
@@ -42,6 +53,7 @@ export default function IndexPage() {
           {activeTab === 'settings' && <DynamicSettings />}
           {activeTab === 'approve' && <DynamicApprove />}
           {activeTab === 'payments' && <DynamicPayments />}
+          {activeTab === 'editpatient' && <DynamicEditPatient id={1} />}
           {activeTab === 'home' && <p>Welcome to LabWise!</p>}
         </Suspense>
       </div>

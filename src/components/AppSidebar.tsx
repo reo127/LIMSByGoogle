@@ -61,6 +61,12 @@ export default function AppSidebar({ activeTab, setActiveTab }: AppSidebarProps)
                 <span>Payments</span>
               </SidebarMenuButton>
             </SidebarMenuItem>
+            <SidebarMenuItem>
+              <SidebarMenuButton href="/editpatient" onClick={() => setActiveTab('editpatient')}>
+                <Icons.edit className="mr-2 h-4 w-4" />
+                <span>Edit Patient</span>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
           </SidebarMenu>
         </SidebarGroup>
       </SidebarContent>

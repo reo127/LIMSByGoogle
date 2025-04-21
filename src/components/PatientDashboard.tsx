@@ -10,6 +10,7 @@ import { cn } from "@/lib/utils";
 import { CalendarIcon, UserPlus } from 'lucide-react';
 import { format } from 'date-fns';
 import AddPatientDialog from './AddPatientDialog';
+import EaditPatient from './EaditPatient';
 import {
   Table,
   TableBody,
@@ -18,8 +19,14 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table"
-import { Badge } from "@/components/ui/badge"
+} from "@/components/ui/table";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Badge } from "@/components/ui/badge";
 import { Icons } from './icons';
 
 const itemsPerPage = 6;
@@ -28,7 +35,9 @@ const PatientDashboard = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [fromDate, setFromDate] = useState<Date | undefined>(new Date());
   const [toDate, setToDate] = useState<Date | undefined>(new Date());
-  const [open, setOpen] = useState(false);
+  const [openAddDialog, setOpenAddDialog] = useState(false);
+  const [openEditDialog, setOpenEditDialog] = useState(false);
+  const [selectedPatientId, setSelectedPatientId] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
 
   // Dummy patient data
@@ -64,7 +73,7 @@ const PatientDashboard = () => {
   const approvedPatients = filteredPatients.filter(patient => patient.status === 'approved');
   const rejectedPatients = filteredPatients.filter(patient => patient.status === 'rejected');
   const pendingPatients = filteredPatients.filter(patient => patient.status === 'pending');
-  const generatedPatients = filteredPatients; // Placeholder for generated tab
+  const generatedPatients = filteredPatients;
 
   const getCurrentPageData = (patients: any[]) => {
     const startIndex = (currentPage - 1) * itemsPerPage;
@@ -87,6 +96,55 @@ const PatientDashboard = () => {
   const onPageChange = (tab: string, page: number) => {
     setCurrentPage(page);
   };
+
+  const handleRowClick = (patientId: string) => {
+    setSelectedPatientId(patientId);
+    setOpenEditDialog(true);
+  };
+
+  const renderTableContent = (patients: any[]) => (
+    <Table>
+      <TableCaption>A list of patient records.</TableCaption>
+      <TableHeader>
+        <TableRow>
+          <TableHead className="w-[100px]">ID</TableHead>
+          <TableHead>Details</TableHead>
+          <TableHead>Date of Entry</TableHead>
+          <TableHead>Payment Status</TableHead>
+          <TableHead>Status</TableHead>
+          <TableHead>Action</TableHead>
+        </TableRow>
+      </TableHeader>
+      <TableBody>
+        {patients.map((patient) => (
+          <TableRow
+            key={patient.id}
+            onClick={() => handleRowClick(patient.id)}
+            className="cursor-pointer hover:bg-muted"
+          >
+            <TableCell className="font-medium">{patient.id}</TableCell>
+            <TableCell>{patient.name}</TableCell>
+            <TableCell>{patient.date}</TableCell>
+            <TableCell>
+              <Badge variant={patient.paymentStatus === 'paid' ? 'success' : 'secondary'}>
+                {patient.paymentStatus}
+              </Badge>
+            </TableCell>
+            <TableCell>
+              <Badge variant={patient.status === 'approved' ? 'success' : patient.status === 'pending' ? 'secondary' : 'destructive'}>
+                {patient.status}
+              </Badge>
+            </TableCell>
+            <TableCell>
+              <Button variant="ghost" size="sm">
+                Edit
+              </Button>
+            </TableCell>
+          </TableRow>
+        ))}
+      </TableBody>
+    </Table>
+  );
 
   const renderPagination = (totalPages: number, tab: string) => {
     if (totalPages <= 1) return null;
@@ -118,7 +176,7 @@ const PatientDashboard = () => {
     <div className="container mx-auto py-10">
       <div className="flex justify-between items-center mb-4">
         <h1 className="text-2xl font-bold">Patient Dashboard</h1>
-        <Button onClick={() => setOpen(true)}>
+        <Button onClick={() => setOpenAddDialog(true)}>
           <UserPlus className="mr-2 h-4 w-4" />
           Add Patient
         </Button>
@@ -178,148 +236,37 @@ const PatientDashboard = () => {
           <TabsTrigger value="generated" onClick={() => setCurrentPage(1)}>Generated</TabsTrigger>
         </TabsList>
         <TabsContent value="all">
-          <Table>
-            <TableCaption>A list of all patient records.</TableCaption>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="w-[100px]">ID</TableHead>
-                <TableHead>Details</TableHead>
-                <TableHead>Date of Entry</TableHead>
-                <TableHead>Payment Status</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Action</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {allCurrentPageData.map((patient) => (
-                <TableRow key={patient.id}>
-                  <TableCell className="font-medium">{patient.id}</TableCell>
-                  <TableCell>{patient.name}</TableCell>
-                  <TableCell>{patient.date}</TableCell>
-                  <TableCell> <Badge variant="bg">{patient.paymentStatus}</Badge></TableCell>
-                  <TableCell> <Badge variant="bg">{patient.status}</Badge></TableCell>
-                  <TableCell></TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+          {renderTableContent(allCurrentPageData)}
           {renderPagination(totalPagesAll, "all")}
         </TabsContent>
         <TabsContent value="approved">
-          <Table>
-            <TableCaption>A list of approved patient records.</TableCaption>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="w-[100px]">ID</TableHead>
-                <TableHead>Details</TableHead>
-                <TableHead>Date of Entry</TableHead>
-                <TableHead>Payment Status</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Action</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {approvedCurrentPageData.map((patient) => (
-                <TableRow key={patient.id}>
-                  <TableCell className="font-medium">{patient.id}</TableCell>
-                  <TableCell>{patient.name}</TableCell>
-                  <TableCell>{patient.date}</TableCell>
-                  <TableCell> <Badge variant="bg">{patient.paymentStatus}</Badge></TableCell>
-                  <TableCell> <Badge variant="bg">{patient.status}</Badge></TableCell>
-                  <TableCell></TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+          {renderTableContent(approvedCurrentPageData)}
           {renderPagination(totalPagesApproved, "approved")}
         </TabsContent>
         <TabsContent value="rejected">
-          <Table>
-            <TableCaption>A list of rejected patient records.</TableCaption>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="w-[100px]">ID</TableHead>
-                <TableHead>Details</TableHead>
-                <TableHead>Date of Entry</TableHead>
-                <TableHead>Payment Status</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Action</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {rejectedCurrentPageData.map((patient) => (
-                <TableRow key={patient.id}>
-                  <TableCell className="font-medium">{patient.id}</TableCell>
-                  <TableCell>{patient.name}</TableCell>
-                  <TableCell>{patient.date}</TableCell>
-                  <TableCell> <Badge variant="bg">{patient.paymentStatus}</Badge></TableCell>
-                  <TableCell> <Badge variant="bg">{patient.status}</Badge></TableCell>
-                  <TableCell></TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+          {renderTableContent(rejectedCurrentPageData)}
           {renderPagination(totalPagesRejected, "rejected")}
         </TabsContent>
         <TabsContent value="pending">
-          <Table>
-            <TableCaption>A list of pending patient records.</TableCaption>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="w-[100px]">ID</TableHead>
-                <TableHead>Details</TableHead>
-                <TableHead>Date of Entry</TableHead>
-                <TableHead>Payment Status</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Action</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {pendingCurrentPageData.map((patient) => (
-                <TableRow key={patient.id}>
-                  <TableCell className="font-medium">{patient.id}</TableCell>
-                  <TableCell>{patient.name}</TableCell>
-                  <TableCell>{patient.date}</TableCell>
-                  <TableCell> <Badge variant="bg">{patient.paymentStatus}</Badge></TableCell>
-                  <TableCell> <Badge variant="bg">{patient.status}</Badge></TableCell>
-                  <TableCell></TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+          {renderTableContent(pendingCurrentPageData)}
           {renderPagination(totalPagesPending, "pending")}
         </TabsContent>
         <TabsContent value="generated">
-          <Table>
-            <TableCaption>A list of generated patient records.</TableCaption>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="w-[100px]">ID</TableHead>
-                <TableHead>Details</TableHead>
-                <TableHead>Date of Entry</TableHead>
-                <TableHead>Payment Status</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Action</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {generatedCurrentPageData.map((patient) => (
-                <TableRow key={patient.id}>
-                  <TableCell className="font-medium">{patient.id}</TableCell>
-                  <TableCell>{patient.name}</TableCell>
-                  <TableCell>{patient.date}</TableCell>
-                  <TableCell> <Badge variant="yellow">{patient.paymentStatus}</Badge></TableCell>
-                  <TableCell> <Badge variant="bg">{patient.status}</Badge></TableCell>
-                  <TableCell></TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+          {renderTableContent(generatedCurrentPageData)}
           {renderPagination(totalPagesGenerated, "generated")}
         </TabsContent>
       </Tabs>
 
-      <AddPatientDialog open={open} setOpen={setOpen} />
+      <AddPatientDialog open={openAddDialog} setOpen={setOpenAddDialog} />
+
+      <Dialog open={openEditDialog} onOpenChange={setOpenEditDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Edit Patient</DialogTitle>
+          </DialogHeader>
+          {selectedPatientId && <EaditPatient id={selectedPatientId} />}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
