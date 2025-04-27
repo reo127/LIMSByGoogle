@@ -259,12 +259,16 @@ const PatientDashboard = () => {
 
       <AddPatientDialog open={openAddDialog} setOpen={setOpenAddDialog} />
 
-      <Dialog open={openEditDialog} onOpenChange={setOpenEditDialog}>
-        <DialogContent>
+      <Dialog open={openEditDialog} onOpenChange={setOpenEditDialog} >
+        <DialogContent className="w-[90vw] max-w-[90vw] h-[90vh] max-h-[90vh] "
+        onEscapeKeyDown={(e) => e.preventDefault()}
+        onPointerDownOutside={(e) => e.preventDefault()}
+        onInteractOutside={(e) => e.preventDefault()}
+        >
           <DialogHeader>
             <DialogTitle>Edit Patient</DialogTitle>
           </DialogHeader>
-          {selectedPatientId && <EaditPatient id={selectedPatientId} />}
+          {selectedPatientId && <EaditPatient id={selectedPatientId} setOpenEditDialog={setOpenEditDialog} />}
         </DialogContent>
       </Dialog>
     </div>
