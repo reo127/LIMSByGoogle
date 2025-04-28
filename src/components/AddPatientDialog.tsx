@@ -133,7 +133,7 @@ const AddPatientDialog = ({ open, setOpen }: { open: boolean; setOpen: (open: bo
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent>
+      <DialogContent className=' '>
         <DialogHeader>
           <DialogTitle>Add New Patient - Step {step} of 3</DialogTitle>
           <DialogDescription>
@@ -362,7 +362,7 @@ const AddPatientDialog = ({ open, setOpen }: { open: boolean; setOpen: (open: bo
 };
 
 const SelectScrollUpButton = React.forwardRef<
-  React.ElementRef<HTMLDivElement>,
+  HTMLDivElement,
   React.ComponentPropsWithoutRef<"div">
 >(({ className, ...props }, ref) => (
   <div
@@ -392,7 +392,7 @@ const SelectScrollUpButton = React.forwardRef<
 SelectScrollUpButton.displayName = "SelectScrollUpButton";
 
 const SelectScrollDownButton = React.forwardRef<
-  React.ElementRef<HTMLDivElement>,
+  HTMLDivElement,
   React.ComponentPropsWithoutRef<"div">
 >(({ className, ...props }, ref) => (
   <div

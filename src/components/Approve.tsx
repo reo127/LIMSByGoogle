@@ -17,8 +17,15 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table"
+} from "@/components/ui/table";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Icons } from './icons';
+import ApproveTests from '@/components/ApproveTests';
 
 const itemsPerPage = 5;
 
@@ -27,6 +34,8 @@ const Approve = () => {
   const [fromDate, setFromDate] = useState<Date | undefined>(new Date());
   const [toDate, setToDate] = useState<Date | undefined>(new Date());
   const [currentPage, setCurrentPage] = useState(1);
+  const [openEditDialog, setOpenEditDialog] = useState(false);
+  const [selectedTestId, setSelectedTestId] = useState<string | null>(null);
 
   // Dummy test data
   const [testData, setTestData] = useState([
@@ -82,6 +91,47 @@ const Approve = () => {
     setCurrentPage(page);
   };
 
+  const handleRowClick = (testId: string) => {
+    setSelectedTestId(testId);
+    setOpenEditDialog(true);
+  };
+
+  const handleDialogClose = () => {
+    setOpenEditDialog(false);
+    setSelectedTestId(null);
+  };
+
+  const renderTableContent = (tests: any[]) => (
+    <Table>
+      <TableCaption>A list of test data.</TableCaption>
+      <TableHeader>
+        <TableRow>
+          <TableHead className="w-[100px]">ID</TableHead>
+          <TableHead>Patient Name</TableHead>
+          <TableHead>Report Date</TableHead>
+          <TableHead>Status</TableHead>
+          <TableHead>Technician</TableHead>
+          <TableHead>Doctor</TableHead>
+        </TableRow>
+      </TableHeader>
+      <TableBody>
+        {tests.map((test) => (
+          <TableRow
+            key={test.id}
+            onClick={() => handleRowClick(test.id)}
+            className="cursor-pointer hover:bg-muted"
+          >
+            <TableCell className="font-medium">{test.id}</TableCell>
+            <TableCell>{test.patientName}</TableCell>
+            <TableCell>{test.reportDate}</TableCell>
+            <TableCell>{test.status}</TableCell>
+            <TableCell>{test.technician}</TableCell>
+            <TableCell>{test.doctor}</TableCell>
+          </TableRow>
+        ))}
+      </TableBody>
+    </Table>
+  );
 
   const renderPagination = (totalPages: number, tab: string) => {
     if (totalPages <= 1) return null;
@@ -166,115 +216,19 @@ const Approve = () => {
           <TabsTrigger value="draft" onClick={() => setCurrentPage(1)}>Draft</TabsTrigger>
         </TabsList>
         <TabsContent value="all">
-          <Table>
-            <TableCaption>A list of all test data.</TableCaption>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="w-[100px]">ID</TableHead>
-                <TableHead>Patient Name</TableHead>
-                <TableHead>Report Date</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Technician</TableHead>
-                <TableHead>Doctor</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {allCurrentPageData.map((test) => (
-                <TableRow key={test.id}>
-                  <TableCell className="font-medium">{test.id}</TableCell>
-                  <TableCell>{test.patientName}</TableCell>
-                  <TableCell>{test.reportDate}</TableCell>
-                  <TableCell>{test.status}</TableCell>
-                  <TableCell>{test.technician}</TableCell>
-                  <TableCell>{test.doctor}</TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+          {renderTableContent(allCurrentPageData)}
           {renderPagination(totalPagesAll, "all")}
         </TabsContent>
         <TabsContent value="approved">
-          <Table>
-            <TableCaption>A list of approved test data.</TableCaption>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="w-[100px]">ID</TableHead>
-                <TableHead>Patient Name</TableHead>
-                <TableHead>Report Date</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Technician</TableHead>
-                <TableHead>Doctor</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {approvedCurrentPageData.map((test) => (
-                <TableRow key={test.id}>
-                  <TableCell className="font-medium">{test.id}</TableCell>
-                  <TableCell>{test.patientName}</TableCell>
-                  <TableCell>{test.reportDate}</TableCell>
-                  <TableCell>{test.status}</TableCell>
-                  <TableCell>{test.technician}</TableCell>
-                  <TableCell>{test.doctor}</TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+          {renderTableContent(approvedCurrentPageData)}
           {renderPagination(totalPagesApproved, "approved")}
         </TabsContent>
         <TabsContent value="rejected">
-          <Table>
-            <TableCaption>A list of rejected test data.</TableCaption>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="w-[100px]">ID</TableHead>
-                <TableHead>Patient Name</TableHead>
-                <TableHead>Report Date</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Technician</TableHead>
-                <TableHead>Doctor</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {rejectedCurrentPageData.map((test) => (
-                <TableRow key={test.id}>
-                  <TableCell className="font-medium">{test.id}</TableCell>
-                  <TableCell>{test.patientName}</TableCell>
-                  <TableCell>{test.reportDate}</TableCell>
-                  <TableCell>{test.status}</TableCell>
-                  <TableCell>{test.technician}</TableCell>
-                  <TableCell>{test.doctor}</TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+          {renderTableContent(rejectedCurrentPageData)}
           {renderPagination(totalPagesRejected, "rejected")}
         </TabsContent>
         <TabsContent value="draft">
-          <Table>
-            <TableCaption>A list of test data in draft status.</TableCaption>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="w-[100px]">ID</TableHead>
-                <TableHead>Patient Name</TableHead>
-                <TableHead>Report Date</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Technician</TableHead>
-                <TableHead>Doctor</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {draftCurrentPageData.map((test) => (
-                <TableRow key={test.id}>
-                  <TableCell className="font-medium">{test.id}</TableCell>
-                  <TableCell>{test.patientName}</TableCell>
-                  <TableCell>{test.reportDate}</TableCell>
-                  <TableCell>{test.status}</TableCell>
-                  <TableCell>{test.technician}</TableCell>
-                  <TableCell>{test.doctor}</TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+          {renderTableContent(draftCurrentPageData)}
           {renderPagination(totalPagesDraft, "draft")}
         </TabsContent>
       </Tabs>
@@ -296,6 +250,21 @@ const Approve = () => {
           <Button variant="destructive" className="ml-2">Reject</Button>
         </div>
       </div>
+
+      <Dialog
+        open={openEditDialog}
+        onOpenChange={setOpenEditDialog}
+        onEscapeKeyDown={(e) => e.preventDefault()}
+        onPointerDownOutside={(e) => e.preventDefault()}
+        onInteractOutside={(e) => e.preventDefault()}
+      >
+        <DialogContent className="w-[90vw] max-w-[90vw] h-[90vh] max-h-[90vh]">
+          <DialogHeader>
+            <DialogTitle>Edit Test Details</DialogTitle>
+          </DialogHeader>
+          {selectedTestId && <ApproveTests testId={1} onClose={handleDialogClose} setOpenEditDialog={setOpenEditDialog} />}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
