@@ -9,7 +9,8 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { cn } from "@/lib/utils";
 import { CalendarIcon, UserPlus } from 'lucide-react';
 import { format } from 'date-fns';
-import AddPatientDialog from './AddPatientDialog';
+// import AddPatientDialog from './AddPatientDialog';
+import { AddPatientDialog } from './AddPatientDialog';
 import EaditPatient from './EaditPatient';
 import {
   Table,
@@ -257,13 +258,16 @@ const PatientDashboard = () => {
         </TabsContent>
       </Tabs>
 
-      <AddPatientDialog open={openAddDialog} setOpen={setOpenAddDialog} />
+      <AddPatientDialog
+        open={openAddDialog}
+        setOpen={setOpenAddDialog}
+      />
 
       <Dialog open={openEditDialog} onOpenChange={setOpenEditDialog} >
         <DialogContent className="w-[90vw] max-w-[90vw] h-[90vh] max-h-[90vh] "
-        onEscapeKeyDown={(e) => e.preventDefault()}
-        onPointerDownOutside={(e) => e.preventDefault()}
-        onInteractOutside={(e) => e.preventDefault()}
+          onEscapeKeyDown={(e) => e.preventDefault()}
+          onPointerDownOutside={(e) => e.preventDefault()}
+          onInteractOutside={(e) => e.preventDefault()}
         >
           <DialogHeader>
             <DialogTitle>Edit Patient</DialogTitle>
