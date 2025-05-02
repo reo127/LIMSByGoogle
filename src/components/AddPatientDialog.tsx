@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, useRef } from "react"
 import { Check, ChevronRight, ChevronLeft, X, Trash2 } from "lucide-react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
@@ -72,12 +72,38 @@ export function AddPatientDialog({ open, setOpen }: AddPatientDialogProps) {
   const [openTestSelect, setOpenTestSelect] = useState(false)
   const [openDiscountSelect, setOpenDiscountSelect] = useState(false)
   const [success, setSuccess] = useState(false)
+  const [searchString, setSearchString] = useState("")
+  const [filterTests, setFilterTests] = useState(TESTS)
+  
+  // Add refs for handling outside clicks
+  const testInputRef = useRef(null)
+  const testDropdownRef = useRef(null)
 
   // Calculate totals
   const totalAmount = patientData.selectedTests?.reduce((sum, test) => sum + test.price, 0) || 0
   const totalDiscount = patientData.discounts?.reduce((sum, discount) => sum + discount.value, 0) || 0
   const discountAmount = (totalAmount * totalDiscount) / 100
   const finalAmount = totalAmount - discountAmount
+
+  // Add effect for handling outside clicks
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (
+        openTestSelect &&
+        testInputRef.current && 
+        testDropdownRef.current &&
+        !testInputRef.current.contains(event.target) && 
+        !testDropdownRef.current.contains(event.target)
+      ) {
+        setOpenTestSelect(false)
+      }
+    }
+    
+    document.addEventListener("mousedown", handleClickOutside)
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside)
+    }
+  }, [openTestSelect])
 
   const handleNext = () => {
     if (step < 3) {
@@ -150,11 +176,67 @@ export function AddPatientDialog({ open, setOpen }: AddPatientDialogProps) {
     // Don't close the popover here
   }
 
-  console.log(patientData)
+  const handleInputChange = (e: any) => {
+    const newSearchString = e.target.value
+    setSearchString(newSearchString)
+    setOpenTestSelect(true)
+    
+    // Use the current input value from the event instead of the state
+    const filteredTests = TESTS.filter((test) =>
+      test.name.toLowerCase().includes(newSearchString.toLowerCase())
+    );
+    
+    if(newSearchString.length === 0){
+      setFilterTests(TESTS)
+    } else {
+      setFilterTests(filteredTests)
+    }
+  }
+
+  const handleInputFocus = () => {
+    setOpenTestSelect(true)
+    setFilterTests(TESTS)
+  }
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && filterTests.length > 0) {
+      e.preventDefault()
+      // Select the first test in the filtered list
+      addTest(filterTests[0])
+      setOpenTestSelect(false)
+      setSearchString("") // Clear the input after selection
+    }
+    
+    // Add escape key to close dropdown but not dialog
+    if (e.key === 'Escape') {
+      e.stopPropagation() // Stop event propagation to prevent closing the dialog
+      setOpenTestSelect(false)
+    }
+  }
 
   return (
-    <Dialog open={open} onOpenChange={handleClose} >
-      <DialogContent className="sm:max-w-[900px] max-h-[90vh] overflow-y-auto">
+    <Dialog 
+      open={open} 
+      onOpenChange={(newOpenState) => {
+        // Only allow the dialog to close when explicitly set by our own controls
+        if (open && newOpenState === false) {
+          // Do nothing when trying to close dialog by clicking outside
+          return;
+        }
+        setOpen(newOpenState)
+      }}
+    >
+      <DialogContent 
+        className="sm:max-w-[900px] max-h-[90vh] overflow-y-auto"
+        onEscapeKeyDown={(e) => {
+          // Prevent closing on escape key
+          e.preventDefault()
+        }}
+        onInteractOutside={(e) => {
+          // Prevent closing when clicking outside
+          e.preventDefault()
+        }}
+      >
         <DialogHeader>
           <DialogTitle>Add New Patient</DialogTitle>
         </DialogHeader>
@@ -283,23 +365,28 @@ export function AddPatientDialog({ open, setOpen }: AddPatientDialogProps) {
                       <Input
                         placeholder="Search tests..."
                         className="w-full"
-                        onFocus={() => setOpenTestSelect(true)}
+                        ref={testInputRef}
+                        onFocus={handleInputFocus}
+                        onChange={handleInputChange}
+                        onKeyDown={handleKeyDown}
+                        value={searchString}
                       />
                       {openTestSelect && (
                         <div
+                          ref={testDropdownRef}
                           className="absolute w-full mt-1 rounded-lg border shadow-md bg-white z-50"
                         >
                           <Command shouldFilter={false}>
-                            <CommandInput placeholder="Search tests..." />
                             <CommandList>
                               <CommandEmpty>No test found.</CommandEmpty>
                               <CommandGroup>
-                                {TESTS.map((test) => (
+                                {filterTests.map((test) => (
                                   <CommandItem
                                     key={test.id}
                                     onSelect={() => {
                                       addTest(test);
                                       setOpenTestSelect(false);
+                                      setSearchString(""); // Clear search on selection
                                     }}
                                     className={cn(
                                       "flex items-center justify-between py-2 cursor-pointer hover:bg-accent",
@@ -312,12 +399,11 @@ export function AddPatientDialog({ open, setOpen }: AddPatientDialogProps) {
                                 ))}
                               </CommandGroup>
                             </CommandList>
-                          </Command>
+                          </Command>                        
                         </div>
                       )}
                     </div>
                   </div>
-
 
                   <div className="border rounded-md p-4 min-h-[200px]">
                     <h4 className="text-sm font-medium mb-2">Selected Tests</h4>
@@ -363,15 +449,15 @@ export function AddPatientDialog({ open, setOpen }: AddPatientDialogProps) {
                   <div className="space-y-2">
                     <Label>Select Discounts</Label>
                     <div className="relative">
-                      <Input 
-                        placeholder="Search discounts..." 
+                      <Input
+                        placeholder="Search discounts..."
                         className="w-full"
                         value={patientData.discounts?.[0]?.name || ''}
                         onFocus={() => setOpenDiscountSelect(true)}
                         readOnly
                       />
                       {openDiscountSelect && (
-                        <div 
+                        <div
                           className="absolute w-full mt-1 rounded-lg border shadow-md bg-white z-50"
                         >
                           <Command shouldFilter={false}>
