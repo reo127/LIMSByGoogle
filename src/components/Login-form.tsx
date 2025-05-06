@@ -1,18 +1,64 @@
+'use client'
+
 import { cn } from "@/lib/utils"
+import { useRouter } from 'next/navigation'
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import axios from "axios"
+import { useState } from "react"
+import Cookies from "js-cookie"
+import { useAuthStore } from "@/app/store/auth"
 
 export function LoginForm({
     className,
     ...props
 }: React.ComponentProps<"div">) {
+    const [email, setEmail] = useState("")
+    const [password, setPassword] = useState("")
+    const [error, setError] = useState("")
+
+    const setUser = useAuthStore((state) => state.setUser)
+    const setToken = useAuthStore((state) => state.setToken)
+
+    const router = useRouter()
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault()
+        setError("")
+
+        try {
+            const response = await axios.post("http://localhost:8000/api/auth/login", {
+                email,
+                password
+            }, { withCredentials: true })
+            const data = response.data
+            console.log(data)
+
+            // Set in Zustand
+            setUser(data)
+            setToken(data.token)
+
+            // Set cookies (30-day expiry)
+            const expires = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
+            Cookies.set("userId", data._id, { expires })
+            Cookies.set("labId", data.labId, { expires })
+            Cookies.set("token", data.token, { expires })
+            Cookies.set("role", data.role, { expires })
+            // Cookies.set("user", JSON.stringify(data), { expires }) // Store the entire user object in a cookie
+
+            router.push('/')
+        } catch (err: any) {
+            setError(err.response?.data?.message || "Login failed")
+        }
+    }
+
     return (
         <div className={cn("flex flex-col gap-6", className)} {...props}>
             <Card className="overflow-hidden">
                 <CardContent className="grid p-0 md:grid-cols-2">
-                    <form className="p-6 md:p-8">
+                    <form className="p-6 md:p-8" onSubmit={handleSubmit}>
                         <div className="flex flex-col gap-6">
                             <div className="flex flex-col items-center text-center">
                                 <h1 className="text-2xl font-bold">Welcome back</h1>
@@ -27,6 +73,8 @@ export function LoginForm({
                                     type="email"
                                     placeholder="m@example.com"
                                     required
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
                                 />
                             </div>
                             <div className="grid gap-2">
@@ -39,8 +87,15 @@ export function LoginForm({
                                         Forgot your password?
                                     </a> */}
                                 </div>
-                                <Input id="password" type="password" required />
+                                <Input
+                                    id="password"
+                                    type="password"
+                                    required
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                />
                             </div>
+                            {error && <p className="text-sm text-red-500">{error}</p>}
                             <Button type="submit" className="w-full">
                                 Login
                             </Button>
@@ -79,8 +134,8 @@ export function LoginForm({
                                 </Button>
                             </div> */}
                             <div className="text-center text-sm">
-                               For Any Issues, Please Contact <a href="mailto:LbTlT@example.com" className="font-medium underline underline-offset-4 hover:text-primary">LbTlT@example.com</a>  
-                               or call <a href="tel:+916289038527" className="font-medium underline underline-offset-4 hover:text-primary">+91 6289038527</a>
+                                For Any Issues, Please Contact <a href="mailto:labwise@gamil.com" className="font-medium underline underline-offset-4 hover:text-primary">labwise@gamil.com</a>
+                                or call <a href="tel:+916289038527" className="font-medium underline underline-offset-4 hover:text-primary">+91 6289038527</a>
                             </div>
                         </div>
                     </form>

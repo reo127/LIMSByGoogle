@@ -14,7 +14,7 @@ import {
   SidebarTrigger,
 } from '@/components/ui/sidebar';
 import { Icons } from '@/components/icons';
-import { Home } from 'lucide-react';
+import { Home, LogOut, LogOutIcon } from 'lucide-react';
 
 interface AppSidebarProps {
   activeTab: string;
@@ -70,7 +70,19 @@ export default function AppSidebar({ activeTab, setActiveTab }: AppSidebarProps)
           </SidebarMenu>
         </SidebarGroup>
       </SidebarContent>
-      <SidebarFooter>
+      <SidebarFooter className="flex flex-col gap-2">
+        <div className="px-2">
+          <SidebarMenuButton 
+            href="/logout" 
+            onClick={() => {
+              
+            }}
+            className="w-full justify-start"
+          >
+            <LogOut className="mr-2 h-4 w-4" />
+            <span>Logout</span>
+          </SidebarMenuButton>
+        </div>
         <p className="text-center text-xs">
           &copy; {new Date().getFullYear()} LabWise. All rights reserved.
         </p>

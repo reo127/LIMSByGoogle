@@ -644,7 +644,7 @@ export function AddPatientDialog({ open, setOpen }: AddPatientDialogProps) {
             )}
 
             {/* Navigation buttons */}
-            <div className="flex justify-between mt-6">
+            <div className="flex justify-end gap-4 mt-6">
               {step > 1 ? (
                 <Button variant="outline" onClick={handleBack}>
                   <ChevronLeft className="mr-2 h-4 w-4" /> Back
