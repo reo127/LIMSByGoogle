@@ -15,6 +15,7 @@ import {
 } from '@/components/ui/sidebar';
 import { Icons } from '@/components/icons';
 import { Home, LogOut, LogOutIcon } from 'lucide-react';
+import { logout } from '@/app/utils/auth';
 
 interface AppSidebarProps {
   activeTab: string;
@@ -75,7 +76,8 @@ export default function AppSidebar({ activeTab, setActiveTab }: AppSidebarProps)
           <SidebarMenuButton 
             href="/logout" 
             onClick={() => {
-              
+              logout();
+              window.location.href = '/login';
             }}
             className="w-full justify-start"
           >
