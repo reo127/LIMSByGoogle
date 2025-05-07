@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import Cookies from "js-cookie";
+import Cookies from 'js-cookie';
 
 interface User {
     _id: string;
@@ -31,5 +31,5 @@ export const useAuthStore = create<AuthState>((set) => ({
         localStorage.clear();
         ['token', 'userId', 'labId', 'role'].forEach(Cookies.remove)
         set({ user: null, token: null, isAuthenticated: false });
-      },
+    },
 }));

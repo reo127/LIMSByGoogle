@@ -1,17 +1,48 @@
 import { GalleryVerticalEnd } from "lucide-react"
-
+import { useState } from "react"
+import { useRouter } from "next/navigation"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { toast } from "sonner"
 
 export function LoginForm({
   className,
   ...props
 }: React.ComponentPropsWithoutRef<"div">) {
+  const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
+  const router = useRouter()
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    
+    try {
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      })
+
+      if (!response.ok) {
+        throw new Error('Login failed')
+      }
+
+      const data = await response.json()
+      
+      // The token will be set as an HTTP-only cookie by the backend
+      router.push('/dashboard')
+    } catch (error) {
+      toast.error('Login failed. Please check your credentials.')
+    }
+  }
+
   return (
     <div className={cn("flex flex-col gap-6 border-2 border-gray-200 px-[2rem] py-[3rem] rounded-xl shadow-xl w-[30rem]", className)} {...props}>
-      <form>
+      <form onSubmit={handleSubmit}>
         <div className="flex flex-col gap-6">
           <div className="flex flex-col items-center gap-2">
             <a
@@ -33,6 +64,8 @@ export function LoginForm({
                 type="email"
                 placeholder="m@example.com"
                 required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
               />
             </div>
             <div className="grid gap-2">
@@ -42,6 +75,8 @@ export function LoginForm({
                 type="password"
                 placeholder="Enter your password"
                 required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
               />
             </div>
             <Button type="submit" className="w-full font-bold border-2 border-solid border-primary bg-primary hover:bg-transparent hover:text-black border-black">
